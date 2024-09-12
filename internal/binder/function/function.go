@@ -62,6 +62,7 @@ func init() {
 	registerDateTimeFunc()
 	registerGlobalAggFunc()
 	registerWindowFunc()
+	registerJqFunc()
 }
 
 //var funcWithAsteriskSupportMap = map[string]string{
