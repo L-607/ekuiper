@@ -130,28 +130,100 @@ func registerDateTimeFunc() {
 	builtins["date_diff"] = builtinFunc{
 		fType: ast.FuncTypeScalar,
 		exec: func(ctx api.FunctionContext, args []interface{}) (interface{}, bool) {
-			arg0, err := cast.InterfaceToTime(args[0], "")
+			interval, ok := args[0].(string)
+			if !ok {
+				return errors.New("Interval should be a string"), false
+			}
+			validIntervals := map[string]struct{}{
+				"year":        {},
+				"quarter":     {},
+				"month":       {},
+				"dayofyear":   {},
+				"day":         {},
+				"week":        {},
+				"weekday":     {},
+				"hour":        {},
+				"minute":      {},
+				"second":      {},
+				"millisecond": {},
+				"microsecond": {},
+				"nanosecond":  {},
+			}
+
+			if _, ok := validIntervals[interval]; !ok {
+				return errors.New("invalid interval"), false
+			}
+
+			startDate, err := cast.InterfaceToTime(args[1], "")
 			if err != nil {
 				return err, false
 			}
-			arg1, err := cast.InterfaceToTime(args[1], "")
+
+			endDate, err := cast.InterfaceToTime(args[2], "")
 			if err != nil {
 				return err, false
 			}
-			return arg1.Sub(arg0), true
+
+			var diff int
+
+			switch interval {
+			case "year":
+				diff = endDate.Year() - startDate.Year()
+			case "quarter":
+				startQuarter := (startDate.Year() * 4) + ((int(startDate.Month()) - 1) / 3)
+				endQuarter := (endDate.Year() * 4) + ((int(endDate.Month()) - 1) / 3)
+				diff = endQuarter - startQuarter
+			case "month":
+				diff = (endDate.Year()-startDate.Year())*12 + int(endDate.Month()-startDate.Month())
+			case "dayofyear":
+				diff = endDate.YearDay() - startDate.YearDay()
+			case "day":
+				diff = int(endDate.Sub(startDate).Hours() / 24)
+			case "week":
+				diff = int(endDate.Sub(startDate).Hours() / (24 * 7))
+			case "weekday":
+				totalDays := int(endDate.Sub(startDate).Hours()/24) + 1
+				weekdays := totalDays
+				for i := 0; i < totalDays; i++ {
+					currentDay := startDate.AddDate(0, 0, i)
+					if currentDay.Weekday() == time.Saturday || currentDay.Weekday() == time.Sunday {
+						weekdays--
+					}
+				}
+				diff = weekdays
+			case "hour":
+				diff = int(endDate.Sub(startDate).Hours())
+			case "minute":
+				diff = int(endDate.Sub(startDate).Minutes())
+			case "second":
+				diff = int(endDate.Sub(startDate).Seconds())
+			case "millisecond":
+				diff = int(endDate.Sub(startDate).Milliseconds())
+			case "microsecond":
+				diff = int(endDate.Sub(startDate).Microseconds())
+			case "nanosecond":
+				diff = int(endDate.Sub(startDate).Nanoseconds())
+			}
+
+			return diff, true
 		},
 		val: func(ctx api.FunctionContext, args []ast.Expr) error {
-			if err := ValidateLen(2, len(args)); err != nil {
+			if err := ValidateLen(3, len(args)); err != nil {
 				return err
 			}
 
-			if ast.IsNumericArg(args[0]) || ast.IsStringArg(args[0]) || ast.IsBooleanArg(args[0]) {
-				return ProduceErrInfo(0, "datetime")
+			if _, ok := args[0].(*ast.StringLiteral); !ok {
+				return ProduceErrInfo(0, "Interval parameter should be a string")
 			}
 
 			if ast.IsNumericArg(args[1]) || ast.IsStringArg(args[1]) || ast.IsBooleanArg(args[1]) {
 				return ProduceErrInfo(0, "datetime")
 			}
+
+			if ast.IsNumericArg(args[2]) || ast.IsStringArg(args[2]) || ast.IsBooleanArg(args[2]) {
+				return ProduceErrInfo(0, "datetime")
+			}
+
 			return nil
 		},
 	}
