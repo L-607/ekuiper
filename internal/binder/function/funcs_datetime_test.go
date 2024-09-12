@@ -168,6 +168,270 @@ func TestDateTimeFunctions(t *testing.T) {
 			},
 		},
 		{
+			testCaseName: "test date_diff year (year/yy/yyyy)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"year", "2020-01-01 00:00:00", "2025-06-01 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 5 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 5, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff year alias yy",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"yy", "2020-01-01 00:00:00", "2025-01-01 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 5 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 5, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff year alias yyyy",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"yyyy", "2020-06-01 00:00:00", "2025-05-31 23:59:59"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 5 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 5, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff quarter (q/qq)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"q", "2024-01-01 00:00:00", "2024-04-01 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff month (m/mm)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"mm", "2024-01-15 00:00:00", "2024-03-14 23:59:59"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 2 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 2, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff day aliases (d/dd/day/dy/y/dayofyear)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"day", "2024-12-01 00:00:00", "2024-12-02 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff weekday mapped to day",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"weekday", "2024-12-01 00:00:00", "2024-12-02 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff week (wk/ww/week)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"wk", "2024-12-01 00:00:00", "2024-12-15 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 2 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 2, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff hour (hh)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"hh", "2024-12-01 10:59:59", "2024-12-01 11:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff minute (mi/n)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"mi", "2024-12-01 10:00:59", "2024-12-01 10:01:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff second (ss/s)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"ss", "2024-12-01 10:00:00", "2024-12-01 10:00:01"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff millisecond (ms)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"ms", "2024-12-01 10:00:00.000", "2024-12-01 10:00:00.001"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff microsecond (us/mcs)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"us", "2024-12-01 10:00:00.000000", "2024-12-01 10:00:00.000001"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff nanosecond (ns)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"ns", "2024-12-01 10:00:00.000000000", "2024-12-01 10:00:00.000000001"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff year boundary at new year",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"yy", "2024-12-31 23:59:59", "2025-01-01 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff month boundary Jan31->Feb01",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"mm", "2024-01-31 23:59:59", "2024-02-01 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff month boundary Jan31->Mar01",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"m", "2024-01-31 23:59:59", "2024-03-01 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 2 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 2, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff day alias dy",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"dy", "2024-12-01 00:00:00", "2024-12-02 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff day alias y",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"y", "2024-12-01 00:00:00", "2024-12-02 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff week exact 7 days -> 1",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"week", "2024-12-01 00:00:00", "2024-12-08 00:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff minute alias n",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"n", "2024-12-01 10:00:59", "2024-12-01 10:01:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff second alias s",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"s", "2024-12-01 10:00:00", "2024-12-01 10:00:01"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
 			testCaseName: "test cur_time() with fsp set to 1",
 			funcName:     "cur_time",
 			execTest:     true,
@@ -279,14 +543,37 @@ func TestDateTimeFunctions(t *testing.T) {
 			},
 		},
 		{
-			testCaseName: "test date_diff with 2 args",
+			testCaseName: "test date_diff day boundary (dd)",
 			funcName:     "date_diff",
 			execTest:     true,
-			execArgs:     []interface{}{"2019-01-01 00:00:00", "2019-01-02 00:00:00"},
+			execArgs:     []interface{}{"dd", "2019-01-01 00:00:00", "2019-01-02 00:00:00"},
 			valFunc: func(t interface{}) error {
-				result := t.(time.Duration)
-				if result.Milliseconds() != 24*3600*1000 {
-					return fmt.Errorf("mismatch result, expect %d, got %d", 26*3600*1000, result.Milliseconds())
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff hour boundary (hh)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"hh", "2019-01-01 10:59:59", "2019-01-01 11:00:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
+				}
+				return nil
+			},
+		},
+		{
+			testCaseName: "test date_diff minute boundary (mi)",
+			funcName:     "date_diff",
+			execTest:     true,
+			execArgs:     []interface{}{"mi", "2019-01-01 10:00:59", "2019-01-01 10:01:00"},
+			valFunc: func(t interface{}) error {
+				if t.(int) != 1 {
+					return fmt.Errorf("mismatch result, expect %d, got %v", 1, t)
 				}
 				return nil
 			},
@@ -297,7 +584,7 @@ func TestDateTimeFunctions(t *testing.T) {
 			execTest:     false,
 			valArgs:      []ast.Expr{},
 			valFunc: func(t interface{}) error {
-				expect := errors.New("Expect 2 arguments but found 0.")
+				expect := errors.New("Expect 3 arguments but found 0.")
 				if !reflect.DeepEqual(t, expect) {
 					return fmt.Errorf("mismatch error, expect: %s, got: %s", expect, t)
 				}
@@ -309,6 +596,7 @@ func TestDateTimeFunctions(t *testing.T) {
 			funcName:     "date_diff",
 			execTest:     false,
 			valArgs: []ast.Expr{
+				&ast.StringLiteral{Val: "dd"},
 				&ast.IntegerLiteral{Val: 1},
 				&ast.IntegerLiteral{Val: 2},
 			},

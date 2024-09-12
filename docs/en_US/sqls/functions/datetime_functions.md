@@ -110,11 +110,52 @@ date_calc('2019-01-01', '1h30m10s100ms200us300ns')
 
 ## DATE_DIFF
 
-```text
-date_diff(date1, date2)
-```
+Definition and Usage:
+The `date_diff()` function returns the interval between two dates in the specified unit.
 
-Calculates the difference in days between `date1` and `date2` and returns the calculated difference.
+The `date_diff()` is a date function used to calculate the time interval between two dates. It takes three arguments: the interval unit, the start date, and the end date, and returns the number of specified units between the two dates.
+
+Syntax:
+```text
+date_diff(interval, start_date, end_date)
+```
+- `interval`: The unit of time interval (see supported units below)
+- `start_date`: The start date, as a string or a value that can be parsed as a date
+- `end_date`: The end date, as a string or a value that can be parsed as a date
+
+Supported interval units and aliases:
+- year: `year`, `yy`, `yyyy`
+- quarter: `quarter`, `q`, `qq`
+- month: `month`, `m`, `mm`
+- week: `week`, `wk`, `ww`
+- day: `day`, `dd`, `d`, `dayofyear`, `dy`, `y`, `weekday`, `dw`
+- hour: `hour`, `hh`
+- minute: `minute`, `mi`, `n`
+- second: `second`, `ss`, `s`
+- millisecond: `millisecond`, `ms`
+- microsecond: `microsecond`, `us`, `mcs`
+- nanosecond: `nanosecond`, `ns`
+
+Return value:
+Returns an `int` representing the number of intervals; if `end_date` is earlier than `start_date`, the result is negative.
+
+Examples:
+```text
+-- 1 day
+date_diff('dd', '2024-12-01 00:00:00', '2024-12-02 00:00:00') => 1
+
+-- 1 hour
+date_diff('hh', '2024-12-01 10:59:59', '2024-12-01 11:00:00') => 1
+
+-- 2 months
+date_diff('mm', '2024-01-15 00:00:00', '2024-03-14 23:59:59') => 2
+
+-- 5 years
+date_diff('year', '2020-01-01 00:00:00', '2025-06-01 00:00:00') => 5
+
+-- Negative result (end earlier than start)
+date_diff('dd', '2008-08-05', '2008-06-05') => -61
+```
 
 ## DAY_NAME
 

@@ -130,28 +130,96 @@ func registerDateTimeFunc() {
 	builtins["date_diff"] = builtinFunc{
 		fType: ast.FuncTypeScalar,
 		exec: func(ctx api.FunctionContext, args []interface{}) (interface{}, bool) {
-			arg0, err := cast.InterfaceToTime(args[0], "")
+			intervalRaw, ok := args[0].(string)
+			if !ok {
+				return errors.New("Interval should be a string"), false
+			}
+			interval := strings.ToLower(intervalRaw)
+			// Map SQL Server-style aliases to canonical units
+			alias := map[string]string{
+				"yy": "year", "yyyy": "year", "year": "year",
+				"qq": "quarter", "q": "quarter", "quarter": "quarter",
+				"mm": "month", "m": "month", "month": "month",
+				"dy": "day", "y": "day", "dayofyear": "day", "day": "day", "dd": "day", "d": "day",
+				"wk": "week", "ww": "week", "week": "week",
+				"weekday": "day", "dw": "day", // align with SQL Server where weekday/dw behave like day in DATEDIFF boundaries
+				"hh": "hour", "hour": "hour",
+				"mi": "minute", "n": "minute", "minute": "minute",
+				"ss": "second", "s": "second", "second": "second",
+				"ms": "millisecond", "millisecond": "millisecond",
+				"mcs": "microsecond", "us": "microsecond", "microsecond": "microsecond",
+				"ns": "nanosecond", "nanosecond": "nanosecond",
+			}
+			canon, ok := alias[interval]
+			if !ok {
+				return errors.New("invalid interval"), false
+			}
+
+			startDate, err := cast.InterfaceToTime(args[1], "")
 			if err != nil {
 				return err, false
 			}
-			arg1, err := cast.InterfaceToTime(args[1], "")
+
+			endDate, err := cast.InterfaceToTime(args[2], "")
 			if err != nil {
 				return err, false
 			}
-			return arg1.Sub(arg0), true
+
+			var diff int
+
+			switch canon {
+			case "year":
+				diff = endDate.Year() - startDate.Year()
+			case "quarter":
+				startQuarter := (startDate.Year() * 4) + ((int(startDate.Month()) - 1) / 3)
+				endQuarter := (endDate.Year() * 4) + ((int(endDate.Month()) - 1) / 3)
+				diff = endQuarter - startQuarter
+			case "month":
+				diff = (endDate.Year()-startDate.Year())*12 + int(endDate.Month()-startDate.Month())
+			case "day":
+				// day & dayofyear/dw behave the same in SQL Server DATEDIFF: boundary crossings
+				diff = int(endDate.Truncate(24*time.Hour).Sub(startDate.Truncate(24*time.Hour)).Hours() / 24)
+			case "week":
+				// week boundaries crossed; base epoch Monday 0001-01-01 is fine for relative diff
+				startWeeks := int(startDate.Truncate(24*time.Hour).Unix() / (7 * 24 * 3600))
+				endWeeks := int(endDate.Truncate(24*time.Hour).Unix() / (7 * 24 * 3600))
+				diff = endWeeks - startWeeks
+			case "hour":
+				diff = int(endDate.Truncate(time.Hour).Sub(startDate.Truncate(time.Hour)).Hours())
+			case "minute":
+				diff = int(endDate.Truncate(time.Minute).Sub(startDate.Truncate(time.Minute)).Minutes())
+			case "second":
+				diff = int(endDate.Truncate(time.Second).Sub(startDate.Truncate(time.Second)).Seconds())
+			case "millisecond":
+				diff = int(endDate.Truncate(time.Millisecond).Sub(startDate.Truncate(time.Millisecond)).Milliseconds())
+			case "microsecond":
+				// time package lacks Microsecond truncate pre-1.17; emulate via Nanoseconds
+				startUs := startDate.UnixNano() / 1e3
+				endUs := endDate.UnixNano() / 1e3
+				diff = int(endUs - startUs)
+			case "nanosecond":
+				diff = int(endDate.UnixNano() - startDate.UnixNano())
+			}
+
+			return diff, true
 		},
 		val: func(ctx api.FunctionContext, args []ast.Expr) error {
-			if err := ValidateLen(2, len(args)); err != nil {
+			if err := ValidateLen(3, len(args)); err != nil {
 				return err
 			}
 
-			if ast.IsNumericArg(args[0]) || ast.IsStringArg(args[0]) || ast.IsBooleanArg(args[0]) {
-				return ProduceErrInfo(0, "datetime")
+			if _, ok := args[0].(*ast.StringLiteral); !ok {
+				return ProduceErrInfo(0, "Interval parameter should be a string")
 			}
 
 			if ast.IsNumericArg(args[1]) || ast.IsStringArg(args[1]) || ast.IsBooleanArg(args[1]) {
 				return ProduceErrInfo(0, "datetime")
 			}
+
+			if ast.IsNumericArg(args[2]) || ast.IsStringArg(args[2]) || ast.IsBooleanArg(args[2]) {
+				return ProduceErrInfo(0, "datetime")
+			}
+
 			return nil
 		},
 	}

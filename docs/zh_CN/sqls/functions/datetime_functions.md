@@ -106,11 +106,52 @@ date_calc('2019-01-01', '1h30m10s100ms200us300ns')
 
 ## DATE_DIFF
 
-```text
-date_diff(date1, date2)
-```
+定义与用法：
+`date_diff()` 函数返回两个日期之间在指定时间单位上的间隔数。
 
-计算 `date1` 和 `date2` 之间的天数差，返回计算后的天数差。
+`date_diff()` 是一个日期函数，用于计算两个日期之间的时间间隔。它接受三个参数：时间间隔单位、开始日期和结束日期，并返回两个日期之间的单位时间间隔。
+
+语法：
+```text
+date_diff(interval, start_date, end_date)
+```
+- `interval`：时间间隔单位（支持的单位见下表）
+- `start_date`：起始日期，字符串或可解析为日期的值
+- `end_date`：结束日期，字符串或可解析为日期的值
+
+支持的 interval 单位及别名：
+- 年：`year`、`yy`、`yyyy`
+- 季：`quarter`、`q`、`qq`
+- 月：`month`、`m`、`mm`
+- 周：`week`、`wk`、`ww`
+- 天：`day`、`dd`、`d`、`dayofyear`、`dy`、`y`、`weekday`、`dw`
+- 小时：`hour`、`hh`
+- 分钟：`minute`、`mi`、`n`
+- 秒：`second`、`ss`、`s`
+- 毫秒：`millisecond`、`ms`
+- 微秒：`microsecond`、`us`、`mcs`
+- 纳秒：`nanosecond`、`ns`
+
+返回值：
+返回 `int`，表示在指定单位上的间隔数；若 `end_date` 早于 `start_date`，结果为负数。
+
+示例：
+```text
+-- 1 天
+date_diff('dd', '2024-12-01 00:00:00', '2024-12-02 00:00:00') => 1
+
+-- 1 小时
+date_diff('hh', '2024-12-01 10:59:59', '2024-12-01 11:00:00') => 1
+
+-- 2 个月
+date_diff('mm', '2024-01-15 00:00:00', '2024-03-14 23:59:59') => 2
+
+-- 5 年
+date_diff('year', '2020-01-01 00:00:00', '2025-06-01 00:00:00') => 5
+
+-- 负数结果（结束早于开始）
+date_diff('dd', '2008-08-05', '2008-06-05') => -61
+```
 
 ## DAY_NAME
 
