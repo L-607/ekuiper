@@ -34,13 +34,18 @@ func registerJqFunc() {
 			var input interface{}
 			switch v := args[0].(type) {
 			case string:
+				if v == "" {
+					return nil, true
+				}
 				if err := json.Unmarshal([]byte(v), &input); err != nil {
 					return fmt.Errorf("invalid JSON string: %v", err), false
 				}
 			case []interface{}, map[string]interface{}:
 				input = v
+			case nil:
+				return nil, true
 			default:
-				return fmt.Errorf("first argument must be a JSON string, array, or object"), false
+				return fmt.Errorf("first argument must be a JSON string, array, or object, got %T", v), false
 			}
 
 			queryStr, ok := args[1].(string)
@@ -79,7 +84,10 @@ func registerJqFunc() {
 
 		},
 		val: func(_ api.FunctionContext, args []ast.Expr) error {
-			return ValidateAtLeast(2, len(args))
+			if err := ValidateAtLeast(2, len(args)); err != nil {
+				return err
+			}
+			return nil
 		},
 		check: returnNilIfHasAnyNil,
 	}
